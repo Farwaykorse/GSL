@@ -41,6 +41,7 @@ if(MSVC) # MSVC or simulating MSVC
         /WX
         $<$<CXX_COMPILER_ID:Clang>:
           -fno-strict-aliasing
+          -Weverything
           -Wcast-align
           -Wconversion
           -Wctor-dtor-privacy
@@ -153,6 +154,7 @@ if(MSVC) # MSVC or simulating MSVC
         >
         $<$<CXX_COMPILER_ID:Clang>:
           -fno-strict-aliasing
+          -Weverything
           -Wcast-align
           -Wconversion
           -Wctor-dtor-privacy
