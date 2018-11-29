@@ -79,15 +79,16 @@ before_build:
           $env:CXXFLAGS = "-m64";
         }
       }
+      $env:NINJA_FLAGS = "-j $env:NUMBER_OF_PROCESSORS"
   - mkdir build
   - cd build
   - call "%VCVARSALL%" %ARCHITECTURE%
   - cmake .. -G "Ninja" -DGSL_CXX_STANDARD="%GSL_CXX_STANDARD%"
 
 build_script:
-  - cmake --build . --config %CONFIGURATION%
+  - cmake --build . --config %CONFIGURATION% -- %NINJA_FLAGS%
 
 test_script:
-  - ctest -j2
+  - ctest -j %NUMBER_OF_PROCESSORS%
 
 deploy: off
