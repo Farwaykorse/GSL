@@ -76,7 +76,7 @@ else()
           -Wno-weak-vtables
         >
         $<$<CXX_COMPILER_ID:Clang>:
-          $<CXX_COMPILER_VERSION:5.0>:-Wno-undefined-func-template>
+          $<$<CXX_COMPILER_VERSION:5.0>:-Wno-undefined-func-template>
         >
     )
 endif(MSVC)
