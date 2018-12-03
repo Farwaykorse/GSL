@@ -76,8 +76,7 @@ else()
           -Wno-weak-vtables
         >
         $<$<CXX_COMPILER_ID:Clang>:
-          $<$<AND:$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.9>,
-                  $<VERSION_LESS:$<CXX_COMPILER_VERSION>,6.0.0>>:
+          $<$<AND:$<VERSION_GREATER:$<CXX_COMPILER_VERSION>,4.9>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,6.0.0>>:
             -Wno-undefined-func-template
           >
         >
