@@ -57,6 +57,7 @@ else()
         -Wconversion
         -Werror
         -Wextra
+        -Wmissing-noreturn
         -Wpedantic
         -Wshadow
         -Wsign-conversion
@@ -169,6 +170,7 @@ else()
         -Wconversion
         -Werror
         -Wextra
+        -Wmissing-noreturn
         -Wpedantic
         -Wshadow
         -Wsign-conversion
