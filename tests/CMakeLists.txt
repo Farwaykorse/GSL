@@ -55,12 +55,14 @@ else()
         -Wall
         -Wcast-align
         -Wconversion
-        -Wctor-dtor-privacy
         -Werror
         -Wextra
         -Wpedantic
         -Wshadow
         -Wsign-conversion
+        $<$<CXX_COMPILER_ID:GNU>:
+          -Wctor-dtor-privacy
+        >
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
           -Weverything
           -Wno-c++98-compat
@@ -165,12 +167,14 @@ else()
         -Wall
         -Wcast-align
         -Wconversion
-        -Wctor-dtor-privacy
         -Werror
         -Wextra
         -Wpedantic
         -Wshadow
         -Wsign-conversion
+        $<$<CXX_COMPILER_ID:GNU>:
+          -Wctor-dtor-privacy
+        >
         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
           -Weverything
           -Wno-c++98-compat
