@@ -24,7 +24,11 @@ int narrow_no_throw()
     return gsl::narrow<int>(bigNumber);
 }
 
-[[noreturn]] void test_terminate() { std::exit(0); }
+[[noreturn]]
+#if defined(__clang__) && defined(_MSC_VER)
+__attribute__((noreturn))
+#endif
+void test_terminate() { std::exit(0); }
 
 void setup_termination_handler() noexcept
 {

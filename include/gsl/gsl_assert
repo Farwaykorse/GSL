@@ -97,10 +97,18 @@ namespace details
 {
 #if defined(GSL_MSVC_USE_STL_NOEXCEPTION_WORKAROUND)
 
-    typedef void  (__cdecl *terminate_handler)();
+#if defined(__clang__)
+    typedef void (__attribute__((noreturn)) __cdecl *terminate_handler)();
+#else
+    typedef void (__cdecl *terminate_handler)();
+#endif
 
     GSL_SUPPRESS(f.6) // NO-FORMAT: attribute
-    [[noreturn]] inline void __cdecl default_terminate_handler()
+    [[noreturn]]
+#if defined(__clang__)
+    __attribute__((noreturn))
+#endif
+    inline void __cdecl default_terminate_handler()
     {
         __fastfail(RANGE_CHECKS_FAILURE);
     }
@@ -110,8 +118,7 @@ namespace details
         static terminate_handler handler = &default_terminate_handler;
         return handler;
     }
-
-#endif
+#endif // GSL_MSVC_USE_STL_NOEXCEPTION_WORKAROUND
 
     [[noreturn]] inline void terminate() noexcept
     {
