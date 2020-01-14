@@ -5,32 +5,60 @@ project(GSLTests CXX)
 # will make visual studio generated project group files
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download
-)
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+include(FindGTest)
+find_package(GTest QUIET MODULE)
+
+if(GTest_FOUND)
+    message(STATUS "Found GoogleTest on system.")
+    if(CMAKE_VERSION VERSION_LESS 3.5)
+        add_library(googletest INTERFACE)
+        target_include_directories(googletest SYSTEM INTERFACE ${GTEST_INCLUDE_DIRS})
+        target_link_libraries(googletest INTERFACE ${GTEST_LIBRARIES})
+        add_library(gtest_main INTERFACE)
+        target_link_libraries(gtest_main INTERFACE ${GTEST_MAIN_LIBRARIES})
+        add_library(GTest::GTest ALIAS googletest)
+        add_library(GTest::Main ALIAS gtest_main)
+    endif()
+else()
+    message(STATUS "Download and build GoogleTest.")
+
+    configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download
+    )
+    if(result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download
+    )
+    if(result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    add_subdirectory(
+        ${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+        EXCLUDE_FROM_ALL
+    )
+
+    # for tests to find the gtest header
+    add_library(googletest INTERFACE)
+    target_include_directories(googletest SYSTEM INTERFACE
+        googletest/googletest/include
+    )
+
+    # Custom alias targets matching find_package results
+    add_library(GTest::GTest ALIAS googletest)
+    add_library(GTest::Main ALIAS gtest_main)
 endif()
-
-execute_process(
-    COMMAND ${CMAKE_COMMAND} --build .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download
-)
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-add_subdirectory(
-    ${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-    ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-    EXCLUDE_FROM_ALL
-)
 
 if (MSVC AND (GSL_CXX_STANDARD EQUAL 17))
     set(GSL_CPLUSPLUS_OPT -Zc:__cplusplus -permissive-)
@@ -84,19 +112,13 @@ else()
     )
 endif(MSVC)
 
-# for tests to find the gtest header
-target_include_directories(gsl_tests_config SYSTEM INTERFACE
-    googletest/googletest/include
-)
-
-set_property(TARGET  PROPERTY FOLDER "GSL_tests")
-
 function(add_gsl_test name)
     add_executable(${name} ${name}.cpp)
-    target_link_libraries(${name}
+    target_link_libraries(${name} PRIVATE
         GSL
         gsl_tests_config
-        gtest_main
+        GTest::GTest
+        GTest::Main
     )
     add_test(
         ${name}
@@ -179,7 +201,8 @@ function(add_gsl_test_noexcept name)
     target_link_libraries(${name}
         GSL
         gsl_tests_config_noexcept
-        gtest_main
+        GTest::GTest
+        GTest::Main
     )
     add_test(
       ${name}
