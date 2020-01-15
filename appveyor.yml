@@ -28,6 +28,8 @@ environment:
   VCVAR2015: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
   VCVAR2017: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
   VCVAR2019: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat'
+  TOOLCHAIN_FILE: 'C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake'
+
   matrix:
     - GSL_CXX_STANDARD: 14
       USE_TOOLSET: MSVC
@@ -77,9 +79,14 @@ install:
         }
         $env:PATH="C:\cmake-3.14.4-win32-x86\bin;$env:PATH"
       }
+  - vcpkg install gtest:%PLATFORM%-windows
+  - vcpkg upgrade --no-dry-run
 
 before_build:
   - ps: |
+      $Shared_CMake_Gen_Flags = "-DGSL_CXX_STANDARD=$env:GSL_CXX_STANDARD" `
+            +" -DCMAKE_TOOLCHAIN_FILE=$env:TOOLCHAIN_FILE"                 `
+            +' -Wdev -Werror=dev --warn-uninitialized'
       if ("$env:USE_GENERATOR" -eq "Ninja") {
         $GeneratorFlags = '-k 10'
         $Architecture = $env:PLATFORM
@@ -90,7 +97,7 @@ before_build:
         } else {
           $env:VCVARSALL = "`"$env:VCVAR2019`" $Architecture"
         }
-        $env:CMakeGenFlags = "-G Ninja -DGSL_CXX_STANDARD=$env:GSL_CXX_STANDARD"
+        $env:CMakeGenFlags = "-G Ninja $Shared_CMake_Gen_Flags"
       } else {
         $GeneratorFlags = '/m /v:minimal'
         if ("$env:APPVEYOR_BUILD_WORKER_IMAGE" -eq "Visual Studio 2015") {
@@ -106,20 +113,17 @@ before_build:
             $Architecture = "x64" 
         }
         if ("$env:USE_TOOLSET" -eq "LLVM") {
-          $env:CMakeGenFlags = "-G `"$Generator`" -A $Architecture -T llvm -DGSL_CXX_STANDARD=$env:GSL_CXX_STANDARD"
+          $env:CMakeGenFlags = "-G `"$Generator`" -A $Architecture -T ClangCL $Shared_CMake_Gen_Flags"
         } else {
-          $env:CMakeGenFlags = "-G `"$Generator`" -A $Architecture -DGSL_CXX_STANDARD=$env:GSL_CXX_STANDARD"
+          $env:CMakeGenFlags = "-G `"$Generator`" -A $Architecture $Shared_CMake_Gen_Flags"
         }
       }
       if ("$env:USE_TOOLSET" -eq "LLVM") {
         $env:CC  = "clang-cl"
         $env:CXX = "clang-cl"
-        if ("$env:PLATFORM" -eq "x86") {
+        if ("$env:PLATFORM" -eq "x86") { # Cross-compile to x86
           $env:CFLAGS   = "-m32";
           $env:CXXFLAGS = "-m32";
-        } else {
-          $env:CFLAGS   = "-m64";
-          $env:CXXFLAGS = "-m64";
         }
       }
       $env:CMakeBuildFlags = "--config $env:CONFIGURATION -- $GeneratorFlags"

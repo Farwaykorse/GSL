@@ -60,16 +60,12 @@ else()
     add_library(GTest::Main ALIAS gtest_main)
 endif()
 
-if (MSVC AND (GSL_CXX_STANDARD EQUAL 17))
-    set(GSL_CPLUSPLUS_OPT -Zc:__cplusplus -permissive-)
-endif()
-
 # this interface adds compile options to how the tests are run
 # please try to keep entries ordered =)
 add_library(gsl_tests_config INTERFACE)
 if(MSVC) # MSVC or simulating MSVC
     target_compile_options(gsl_tests_config INTERFACE
-        ${GSL_CPLUSPLUS_OPT}
+        $<$<EQUAL:${GSL_CXX_STANDARD},17>:-Zc:__cplusplus -permissive->
         /EHsc
         /W4
         /WX
@@ -156,7 +152,7 @@ endforeach(flag_var)
 add_library(gsl_tests_config_noexcept INTERFACE)
 if(MSVC) # MSVC or simulating MSVC
     target_compile_options(gsl_tests_config_noexcept INTERFACE
-        ${GSL_CPLUSPLUS_OPT}
+        $<$<EQUAL:${GSL_CXX_STANDARD},17>:-Zc:__cplusplus -permissive->
         /EHsc
         /W4
         /WX
