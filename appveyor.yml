@@ -1,5 +1,13 @@
 shallow_clone: true
 
+skip_commits:
+  files:
+   - .clang-format
+   - .gitignore
+   - .travis.yml
+   - LICENSE
+   - '**/*.md'
+
 platform:
   - x86
   - x64
