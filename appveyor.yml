@@ -51,8 +51,7 @@ matrix:
       USE_GENERATOR: MSBuild
 
 cache:
-  - C:\cmake-3.14.4-win32-x86
-  - C:\Tools\ninja
+  - C:\Tools\vcpkg\installed
 
 install:
   - ps: |
