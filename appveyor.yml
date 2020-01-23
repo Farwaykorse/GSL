@@ -26,18 +26,18 @@ environment:
   VCVAR2017: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
   VCVAR2019: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat'
   matrix:
-    - GSL_CXX_STANDARD: 14
-      USE_TOOLSET: MSVC
-      USE_GENERATOR: MSBuild
-    - GSL_CXX_STANDARD: 17
-      USE_TOOLSET: MSVC
-      USE_GENERATOR: MSBuild
-    - GSL_CXX_STANDARD: 14
-      USE_TOOLSET: LLVM
-      USE_GENERATOR: Ninja
-    - GSL_CXX_STANDARD: 17
-      USE_TOOLSET: LLVM
-      USE_GENERATOR: Ninja
+    #- GSL_CXX_STANDARD: 14
+    #  USE_TOOLSET: MSVC
+    #  USE_GENERATOR: MSBuild
+    #- GSL_CXX_STANDARD: 17
+    #  USE_TOOLSET: MSVC
+    #  USE_GENERATOR: MSBuild
+    #- GSL_CXX_STANDARD: 14
+    #  USE_TOOLSET: LLVM
+    #  USE_GENERATOR: Ninja
+    #- GSL_CXX_STANDARD: 17
+    #  USE_TOOLSET: LLVM
+    #  USE_GENERATOR: Ninja
     - CPPCORECHECK: true
       USE_TOOLSET: MSVC
       GSL_CXX_STANDARD: 17
