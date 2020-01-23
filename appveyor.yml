@@ -38,7 +38,7 @@ environment:
     #- GSL_CXX_STANDARD: 17
     #  USE_TOOLSET: LLVM
     #  USE_GENERATOR: Ninja
-    - CPPCORECHECK: true
+    - ANALYZE: true
       USE_TOOLSET: MSVC
       GSL_CXX_STANDARD: 17
       USE_GENERATOR: Ninja
@@ -50,11 +50,11 @@ matrix:
     - image: Visual Studio 2015
       USE_TOOLSET: LLVM
       USE_GENERATOR: MSBuild
-    - { CPPCORECHECK: true, image: Visual Studio 2015 }
-    - { CPPCORECHECK: true, USE_TOOLSET: LLVM }
-    - { CPPCORECHECK: true, configuration: Release }
+    - { ANALYZE: true, image: Visual Studio 2015 }
+    - { ANALYZE: true, USE_TOOLSET: LLVM }
+    - { ANALYZE: true, configuration: Release }
   allow_failures:
-    - CPPCORECHECK: true
+    - ANALYZE: true
 
 cache:
   - C:\cmake-3.14.4-win32-x86
@@ -113,13 +113,19 @@ before_build:
           $env:CXXFLAGS = "-m64";
         }
       }
-      if ($env:CPPCORECHECK) {
-         $env:CXXFLAGS = "$env:CXXFLAGS /analyze:ruleset `"%VSINSTALLDIR%\Team Tools\Static Analysis Tools\Rule Sets\CppCoreCheckRules.ruleset`""
+      if ($env:ANALYZE) {
+         $default_path = '%VSINSTALLDIR%\Team Tools\Static Analysis Tools\Rule Sets'
+         $analyze = @('/analyze:only') # no code generation
+         $analyze += '/analyze:WX-'    # keep running for all files
+         $analyze += '/analyze:plugin EspXEngine.dll'
+         $analyze += "/analyze:ruleset `"${default_path}\CppCoreCheckRules.ruleset`""
+         $env:CXXFLAGS = "$env:CXXFLAGS $analyze"
       }
       $env:CMakeBuildFlags = "--config $env:CONFIGURATION -- $GeneratorFlags"
   - mkdir build
   - cd build
   - if %USE_GENERATOR%==Ninja (call %VCVARSALL%)
+  - if %ANALYZE%==true (set esp.extensions=cppcorecheck.dll && set esp.annotationbuildlevel=ignore && set caexcludepath="%include%")
   - echo %CMakeGenFlags%
   - cmake .. %CMakeGenFlags%
 
