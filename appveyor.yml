@@ -50,13 +50,11 @@ matrix:
     - image: Visual Studio 2015
       USE_TOOLSET: LLVM
       USE_GENERATOR: MSBuild
-    - CPPCORECHECK: true
-      configuration: Release
-    - CPPCORECHECK: true
-      image: Visual Studio 2015
+    - { CPPCORECHECK: true, image: Visual Studio 2015 }
+    - { CPPCORECHECK: true, USE_TOOLSET: LLVM }
+    - { CPPCORECHECK: true, configuration: Release }
   allow_failures:
     - CPPCORECHECK: true
-
 
 cache:
   - C:\cmake-3.14.4-win32-x86
