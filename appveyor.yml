@@ -38,14 +38,25 @@ environment:
     - GSL_CXX_STANDARD: 17
       USE_TOOLSET: LLVM
       USE_GENERATOR: Ninja
+    - CPPCORECHECK: true
+      USE_TOOLSET: MSVC
+      GSL_CXX_STANDARD: 17
+      USE_GENERATOR: Ninja
 
 matrix:
-    exclude:
+  exclude:
     - image: Visual Studio 2015
       GSL_CXX_STANDARD: 17
     - image: Visual Studio 2015
       USE_TOOLSET: LLVM
       USE_GENERATOR: MSBuild
+    - CPPCORECHECK: true
+      configuration: Release
+    - CPPCORECHECK: true
+      image: Visual Studio 2015
+  allow_failures:
+    - CPPCORECHECK: true
+
 
 cache:
   - C:\cmake-3.14.4-win32-x86
@@ -103,6 +114,9 @@ before_build:
           $env:CFLAGS   = "-m64";
           $env:CXXFLAGS = "-m64";
         }
+      }
+      if ($env:CPPCORECHECK) {
+         $env:CXXFLAGS = "$env:CXXFLAGS /analyze:ruleset `"%VSINSTALLDIR%\Team Tools\Static Analysis Tools\Rule Sets\CppCoreCheckRules.ruleset`""
       }
       $env:CMakeBuildFlags = "--config $env:CONFIGURATION -- $GeneratorFlags"
   - mkdir build
