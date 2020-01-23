@@ -115,7 +115,8 @@ before_build:
       }
       if ($env:ANALYZE) {
          $default_path = '%VSINSTALLDIR%\Team Tools\Static Analysis Tools\Rule Sets'
-         $analyze = @('/analyze:only') # no code generation
+         #$analyze = @('/analyze:only') # no code generation
+         $analyze = @()
          $analyze += '/analyze:WX-'    # keep running for all files
          $analyze += '/analyze:plugin EspXEngine.dll'
          $analyze += "/analyze:ruleset `"${default_path}\CppCoreCheckRules.ruleset`""
